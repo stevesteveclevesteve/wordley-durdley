@@ -56,6 +56,10 @@ export class AppComponent implements OnInit {
 
   submitGuess(guess: string) {
     this.invalidGuess = false;
+    if (guess.length !== 5) {
+      this.invalidGuess = true;
+      return;
+    }
     this.guessIsAWord(guess).subscribe(isWord => {
       if (isWord || guess == this.correctAnswer) { // Allow the guess if it's a valid word or matches the correct answer
         const currentRow = this.grid.find(row => row[0].letter == '');

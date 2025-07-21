@@ -232,6 +232,11 @@
           (keyup.enter)="submitGuess(guessInput.value); guessInput.value='';"
           [disabled]="canReset"/>
       </div>
+      <input
+        type="button"
+        value="Submit Guess"
+        (click)="submitGuess(guessInput.value); guessInput.value='';"
+      />
       <div>
         <input type="button"
              value="Reset Game"
@@ -242,7 +247,7 @@
         @if (guessWasCorrect) {
           <p>Congratulations! You guessed the word!</p>
         } @else if (invalidGuess) {
-          <p>Please enter a valid word.</p>
+          <p>Please enter a valid 5-letter word.</p>
         } @else if (guesses.length === 0) {
           <p>Guess a 5-letter word!</p>
         } @else if (guesses.length < 6) {
