@@ -1,10 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { NgStyle } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { catchError, map, Observable, of } from 'rxjs';
 
 @Component({
     selector: 'app-root',
-    imports: [],
+    imports: [NgStyle, FormsModule],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css',
     standalone: true
@@ -15,8 +17,14 @@ export class AppComponent implements OnInit {
   hitStatuses = ['correct', 'present'];
   private http = inject(HttpClient);
   private _correctAnswer: string = '';
+
+  guessValue: string = '';
   guesses: string[] = [];
   invalidGuess = false;
+
+  showMessage = false;
+  messageText = '';
+  messageAngle = 0;
 
   constructor() {
     this.grid = Array.from({ length: 6 }, () => Array(5).fill({ letter: '', status: '', index: 0 }));
@@ -32,6 +40,7 @@ export class AppComponent implements OnInit {
       .subscribe((data: string[]) => {
         this._correctAnswer = data[0].toUpperCase();
       });
+    this.setMessage();
   }
 
   get correctAnswer(): string {
@@ -46,18 +55,32 @@ export class AppComponent implements OnInit {
     return this.guessWasCorrect || this.guesses.length >= 6;
   }
 
-  guessIsAWord(guess: string): Observable<boolean> {
-    return this.http.get('https://api.dictionaryapi.dev/api/v2/entries/en/' + guess.toLowerCase())
-      .pipe(
-        map(data => Array.isArray(data)), // true if array, false if object
-        catchError(() => of(false)) // If the API returns an error, treat as not a word;
-      );
+  displayMessage(text: string, timeout: number = 2200) {
+    this.messageText = text;
+    this.messageAngle = Math.floor(Math.random() * 81) - 40; // -40 to 40
+    this.showMessage = true;
+    setTimeout(() => this.showMessage = false, 2200); // matches animation duration
+  }
+
+  setMessage() {
+    if (this.guessWasCorrect) {
+      this.displayMessage('Congratulations! You guessed the word!', 5000);
+    } else if (this.invalidGuess) {
+      this.displayMessage('Please enter a valid 5-letter word.');
+    } else if (this.guesses.length === 0) {
+      this.displayMessage('Guess a 5-letter word!');
+    } else if (this.guesses.length < 6) {
+      this.displayMessage('Keep guessing!');
+    } else {
+      this.displayMessage(`Game over! The correct answer was: ${this.correctAnswer}`, 5000);
+    }
   }
 
   submitGuess(guess: string) {
     this.invalidGuess = false;
     if (guess.length !== 5) {
       this.invalidGuess = true;
+      this.setMessage();
       return;
     }
     this.guessIsAWord(guess).subscribe(isWord => {
@@ -84,7 +107,16 @@ export class AppComponent implements OnInit {
       } else {
         this.invalidGuess = true;
       }
+      this.setMessage();
     });
+  }
+
+  guessIsAWord(guess: string): Observable<boolean> {
+    return this.http.get('https://api.dictionaryapi.dev/api/v2/entries/en/' + guess.toLowerCase())
+      .pipe(
+        map(data => Array.isArray(data)), // true if array, false if object
+        catchError(() => of(false)) // If the API returns an error, treat as not a word;
+      );
   }
 
   resetGame() {

@@ -86,6 +86,14 @@
     margin-inline: 0.5rem;
   }
 
+  .input-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0 1rem 0;
+  }
+
   .pill-group {
     display: flex;
     flex-direction: column;
@@ -132,6 +140,39 @@
 
   .pill-group svg {
     margin-inline-start: 0.25rem;
+  }
+
+  .pill-input {
+    min-width: 10rem;
+    text-align: center;
+    font-size: 1.1rem;
+    font-family: inherit;
+    border: none;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    background: color-mix(in srgb, var(--pill-accent) 5%, transparent);
+    color: var(--pill-accent);
+    padding: 0.5rem 1rem;
+    border-radius: 2.75rem;
+    transition: background 0.3s;
+  }
+
+  .pill-input:disabled {
+    opacity: 0.5;
+    background: #eee;
+    color: #aaa;
+  }
+
+  .pill[type="button"] {
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 0.5rem 1.2rem;
+  }
+
+  .pill[type="button"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   @media screen and (max-width: 650px) {
@@ -189,22 +230,57 @@
   }
 
   @keyframes wordle-bounce {
-  0%   { transform: scale(1); }
-  20%  { transform: scale(1.2, 0.8); }
-  40%  { transform: scale(0.9, 1.1); }
-  60%  { transform: scale(1.05, 0.95); }
-  80%  { transform: scale(0.95, 1.05); }
-  100% { transform: scale(1); }
-}
+    0%   { transform: scale(1); }
+    20%  { transform: scale(1.2, 0.8); }
+    40%  { transform: scale(0.9, 1.1); }
+    60%  { transform: scale(1.05, 0.95); }
+    80%  { transform: scale(0.95, 1.05); }
+    100% { transform: scale(1); }
+  }
 
-.wordle-tile-bounce {
-  animation: wordle-bounce 0.6s;
-}
+  .wordle-tile-bounce {
+    animation: wordle-bounce 0.6s;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
+  .left-side {
+    position: relative;
+  }
+  .message-overlay {
+    position: absolute;
+    top: 30%;
+    left: 0%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    font-family: 'Luckiest Guy', cursive, sans-serif;
+    font-size: 2.5rem;
+    color: #41d0ff;
+    text-shadow: 2px 2px 8px #000, 0 0 10px #fff;
+    opacity: 0;
+    animation: fade-message 2.2s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, transform;
+  }
+
+  @keyframes fade-message {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 </style>
 
 <main class="main">
   <div class="content">
     <div class="left-side">
+      @if (showMessage) {
+        <div class="message-overlay"
+          [ngStyle]="{
+            'transform': 'rotate(' + messageAngle + 'deg)'
+        }">
+          {{ messageText }}
+        </div>
+      }
       <div class="wordle-grid">
         @for (gridrow of grid; track gridrow) {
           <div class="wordle-row">
@@ -220,40 +296,35 @@
           </div>
         }
       </div>
-      <div>
+      <div class="input-row">
         <input
-          #guessInput
+          class="pill pill-input"
           type="text"
           placeholder="Enter your guess"
           aria-label="Enter your guess"
-          [align]="'center'"
           minlength="5"
-          [maxLength]="5"
-          (keyup.enter)="submitGuess(guessInput.value); guessInput.value='';"
-          [disabled]="canReset"/>
-      </div>
-      <input
-        type="button"
-        value="Submit Guess"
-        (click)="submitGuess(guessInput.value); guessInput.value='';"
-      />
-      <div>
-        <input type="button"
-             value="Reset Game"
-             (click)="resetGame()"
-             [disabled]="!canReset"/>
-      </div>
-      <div>
-        @if (guessWasCorrect) {
-          <p>Congratulations! You guessed the word!</p>
-        } @else if (invalidGuess) {
-          <p>Please enter a valid 5-letter word.</p>
-        } @else if (guesses.length === 0) {
-          <p>Guess a 5-letter word!</p>
-        } @else if (guesses.length < 6) {
-          <p>Keep guessing!</p>
+          maxlength="5"
+          [(ngModel)]="guessValue"
+          (keyup.enter)="submitGuess(guessValue); guessValue='';"
+          [disabled]="canReset"
+          autocomplete="off"
+        /></div>
+      <div class="input-row">
+        @if (canReset) {
+          <input
+            type="button"
+            class="pill"
+            value="Reset Game"
+            (click)="resetGame()"
+          />
         } @else {
-          <p>Sorry, you've used all your guesses. The word was: {{ correctAnswer }}</p>
+          <input
+            type="button"
+            class="pill"
+            value="Submit Guess"
+            (click)="submitGuess(guessValue); guessValue='';"
+            [disabled]="guessValue.length !== 5"
+          />
         }
       </div>
     </div>
