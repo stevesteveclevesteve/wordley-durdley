@@ -243,12 +243,12 @@ export const customMatchers = {
  */
 export class TestDataFactory {
   static readonly VALID_WORDS = [
-    'APPLE', 'BEACH', 'CHAIR', 'DESK', 'EAGLE',
+    'APPLE', 'BEACH', 'CHAIR', 'DESKS', 'EAGLE',
     'FLOOR', 'GRAPE', 'HOUSE', 'IMAGE', 'JUICE'
   ];
 
   static readonly INVALID_WORDS = [
-    'ABC', 'ABCDE', 'ZZZZZ', 'XXXXX', '12345'
+    'ABC', 'ABCDE', 'ZYXWV', 'XXXXX', '12345'
   ];
 
   static getValidWord(): string {

@@ -84,9 +84,9 @@ export class AppComponent implements OnInit {
       return;
     }
     this.guessIsAWord(guess).subscribe(isWord => {
-      if (isWord || guess == this.correctAnswer) { // Allow the guess if it's a valid word or matches the correct answer
+      guess = guess.toUpperCase();
+      if (isWord || guess === this.correctAnswer) { // Allow the guess if it's a valid word or matches the correct answer
         const currentRow = this.grid.find(row => row[0].letter == '');
-        guess = guess.toUpperCase();
         if (currentRow) {
           for (let i = 0; i < 5; i++) { // in order to properly count yellow tiles, we need to first mark correct letters
             if (guess[i] === this.correctAnswer[i]) {
