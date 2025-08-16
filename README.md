@@ -1,3 +1,5 @@
+Check out [angular-games](https://github.com/stevesteveclevesteve/angular-games) instead to play this game along with others I've put together in a SPA.
+
 # Wordleydurdley
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.3.  Manually updated to version 20. 
